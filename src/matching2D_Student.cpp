@@ -10,6 +10,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     // configure matcher
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
+    auto descSourceType = descSource.type();
 
     if (matcherType.compare("MAT_BF") == 0)
     {
@@ -18,8 +19,19 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        if (descSourceType != CV_32F)
+        { // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+            descSource.convertTo(descSource, CV_32F);
+            descRef.convertTo(descRef, CV_32F);
+        }
+
+        matcher = cv::FlannBasedMatcher::create();
     }
+    else
+    {
+        // Error
+    }
+    
 
     // perform matching task
     if (selectorType.compare("SEL_NN") == 0)
@@ -29,8 +41,13 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
+    }
 
-        // ...
+    // If image has been converted, convert back to original format
+    if (descSourceType != descSource.type())
+    {
+        descSource.convertTo(descSource, descSourceType);
+        descRef.convertTo(descRef, descSourceType);
     }
 }
 
