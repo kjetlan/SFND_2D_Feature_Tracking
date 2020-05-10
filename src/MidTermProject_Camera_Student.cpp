@@ -71,6 +71,22 @@ int main(int argc, const char *argv[])
     const string detectorType   = detectorTypes[detectorIdx]; // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
     const string descriptorType = descriptorTypes[descriptorIdx]; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT (Non-Binary)
 
+    // check if detector and descriptor is compatible
+    if (detectorType == "ORB" && descriptorType == "SIFT")
+    {
+        std::cout << "SIFT descriptors can't be extracted with ORB detector" << std::endl;
+        return 0;
+    }
+    if (detectorType == "AKAZE" && descriptorType != "AKAZE")
+    {
+        std::cout << "AKAZE detector only works with AKAZE descriptors" << std::endl;
+        return 0;
+    }
+    if (detectorType != "AKAZE" && descriptorType == "AKAZE")
+    {
+        std::cout << "AKAZE descriptors only works with AKAZE detector" << std::endl;
+        return 0;
+    }
     std::cout << detectorType << " & " << descriptorType << std::endl;
 
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
